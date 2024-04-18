@@ -46,7 +46,7 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.2, random_s
 #training the model on a given dataset
 model.fit(x_train, y_train)
 #example input to use to see a prediction of value charges
-input = pd.DataFrame({'sex': ['male'], 'smoker': ['no'], 'region': ['southwest'], 'age': [25], 'bmi': [19876], 'children': [0]})
+input = pd.DataFrame({'sex': ['male'], 'smoker': ['no'], 'region': ['southwest'], 'age': [27], 'bmi': [23.4], 'children': [0]})
 yprediction = model.predict(input)
 #predict on all the test data rather than just one row, useful to get mse, r^2 etc
 ypredictiontest = model.predict(x_test)
