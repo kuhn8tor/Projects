@@ -1,0 +1,28 @@
+import pandas as pd
+
+population = pd.read_csv("population.csv")
+gdp = pd.read_csv("gdp.csv")
+
+#trimming out unneeded categories of data and just keeping basic population data
+trimmed = population.loc[:, :'Population]
+
+
+#pivoting population data to align with gdp data for future joining (gdp had year on the x axis and population had year on y)
+pivot_pop = trimmed.pivot(index='Country name', columns='Year', values='Population')
+
+#renaming the population dataframe to have 'country' column match gdp 'country' column
+pivot_pop.rename(columns={'Country name': 'Country Name'}, inplace=True)
+
+
+#renames columns to distinguish them
+gdp.columns = ['Country Name'] + ['GDP_' + str(year) for year in gdp.columns[1:]]
+pivot_pop.columns = ['Country Name'] + ['Pop_' + str(year) for year in pivot_pop.columns[1:]]
+
+#drops 1950s from the population data since the gdp data only starts with the 1960s. 
+pivot_pop = pivot_pop[['Country Name'] + [col for col in pivot_pop.columns if col.startswith('Pop_196') or col.startswith('Pop_197') or col.startswith('Pop_198') or col.startswith('Pop_199') or col.startswith('Pop_200') or col.startswith('Pop_201') or col.startswith('Pop_202')]]
+
+#joining the two datasets using 'Country Name' as the key
+joined = pd.merge(pivot_pop, gdp, on='Country Name', how='inner')
+
+#writing joined and edited dataframe to a new csv file
+joined.to_csv('popandgdpjoined.csv', index=False)
