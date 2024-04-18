@@ -1,0 +1,3 @@
+1) The population and gdp code is written in python's pandas library and is an example of taking two dataframes (population_and_demography.csv and gdp.csv), manipulating, cleaning, and joining the data into one dataframe for easier analysis.
+2) The next project is a multiple linear regression model using sklearn, some plots with the results using matplotlib, and some further options for python analysis of the data/regression results. all of the print statements are hashed to avoid the console from being flooded with print statements of various data
+3) The Power BI file is a visualization and analysis of the resultant data from the population and GDP data
