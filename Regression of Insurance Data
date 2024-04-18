@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 #open insurance as a dataframe
-insurance = pd.read_csv("K:\PythonStuff\programs\spyder\insurance.csv")
+insurance = pd.read_csv("insurance.csv")
 
 #divide up columns that are categorical vs. integers/float for different data transformations
 categorical_cols = ['sex', 'smoker', 'region']
