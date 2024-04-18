@@ -1,0 +1,88 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+import matplotlib.pyplot as plt
+#open insurance as a dataframe
+insurance = pd.read_csv("K:\PythonStuff\programs\spyder\insurance.csv")
+
+#divide up columns that are categorical vs. integers/float for different data transformations
+categorical_cols = ['sex', 'smoker', 'region']
+numeric_cols = ['age', 'bmi', 'children']
+
+#SimpleImputer changes any missing or null data to the constant 'missing'
+#one hot encoder transforms categories into a binary array so that it can convert categories to a number which can be included in the regression
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),  
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+#any missing data values are plugged in with the mean
+#standard scaler makes it so all the data across features is comparable, which makes processing faster and more stable
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='mean'))#, not going to use scaler on this dataC:\Users\kuhna\Downloads\python-portfolio-example-solution.zip\python-portfolio-example-solution
+    #('scaler', StandardScaler())
+])
+#ColumnTransformer runs the transformers on specified columns
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('cat', categorical_transformer, categorical_cols),
+        ('num', numeric_transformer, numeric_cols)
+
+    ])
+#selects the columns/variables to use to impute the y variable
+x = insurance[categorical_cols + numeric_cols]
+#variable we are looking to predict/missing input
+y = insurance['charges']
+#creating the model
+model = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', LinearRegression())])
+#splitting off 20% of the data from the training data to use as test data to avoid overfitting
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.2, random_state=0)
+
+#training the model on a given dataset
+model.fit(x_train, y_train)
+#example input to use to see a prediction of value charges
+input = pd.DataFrame({'sex': ['male'], 'smoker': ['no'], 'region': ['southwest'], 'age': [25], 'bmi': [19876], 'children': [0]})
+yprediction = model.predict(input)
+#predict on all the test data rather than just one row, useful to get mse, r^2 etc
+ypredictiontest = model.predict(x_test)
+
+
+#MSE measure of model predictiveness compared to another model on the same data
+mse = mean_squared_error(y_test, ypredictiontest)
+#measure of the variance in predictions that is accounted for by the model
+r2 = r2_score(y_test, ypredictiontest)
+#std dev of predictions, not std dev of all charges
+stddev = np.std(ypredictiontest)
+#useful stats on the charges overall
+describer = insurance['charges'].describe()
+valuecounts = insurance.value_counts("sex")
+print(valuecounts)
+#print(describer)
+#print(f"The Standard Dev is: {stddev}.")
+#print("Mean Squared Error:", mse)
+#print("R^2 Score:", r2)
+print(f'Based on inputs: the cost of the policy should be {yprediction}.')
+
+
+#this filters the data by a given variable and runs analysis on it.  for ex/ the .describe and .value_counts for insurance charges for all people in region southwest
+def analyze_by(dataframe, category1, category1value, category2):
+    df = dataframe[dataframe[category1] == category1value]
+    scribe = df[category2].describe()
+    count = df[category2].value_counts()
+    print(f" Here is some analysis on the {category2} of people that are {category1}: {category1value}.")
+    return scribe, count
+
+#print(analyze_by(insurance, 'age', 27, 'region'))
+
+def scatter_plot(dataframe, column1, column2):
+    plt.scatter(dataframe[column1], dataframe[column2])
+    plt.title(f'Scatter Plot of {column1} vs. {column2}')
+    plt.xlabel(f'{column1} values')
+    plt.ylabel(f'{column2} values')
+    return plt.show()
+#scatter_plot(insurance, 'bmi', 'charges')
