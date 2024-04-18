@@ -1,0 +1,28 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.inspection import PartialDependenceDisplay
+
+insurance = pd.read_csv('insurance.csv')
+
+x = insurance[['age', 'bmi']]
+y = insurance['charges']
+
+model = RandomForestRegressor(n_estimators=100)
+model.fit(x, y)
+
+fig, axs = plt.subplots(ncols=2, figsize=(10, 5))
+features = ['age', 'bmi']
+PartialDependenceDisplay.from_estimator(model, x, features, grid_resolution=50, ax=axs)
+
+axs[0].set_title('PDP for Age')
+axs[0].set_xlabel('Age')
+axs[0].set_ylabel('Cost of Policy')
+
+axs[1].set_title('PDP for BMI')
+axs[1].set_xlabel('BMI')
+axs[1].set_ylabel('Cost of Policy')
+
+
+plt.tight_layout()
+plt.show()
